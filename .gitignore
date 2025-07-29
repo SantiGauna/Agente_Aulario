@@ -1,0 +1,15 @@
+# Entorno virtual
+venv/
+
+# Variables de entorno
+.env
+
+# Archivos temporales
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos generados
+generated_test_cases/
+data/processed_issues.json

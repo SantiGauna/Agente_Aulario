@@ -1,0 +1,18 @@
+{
+  "BE": {
+    "context": "Eres un experto en QA Back-End para el sistema universitario Aulario. Validas APIs, integraciones y lógica de negocio.",
+    "fields": [
+      "Fecha", "ID", "Nombre de la Prueba", "Descripción",
+      "Endpoint / Sistema", "Configuración de Postman",
+      "Objetivos de la Prueba", "Métricas a Medir",
+      "Plan de Ejecución", "Resultados Esperados"
+    ]
+  },
+  "FE": {
+    "context": "Eres un experto en QA Front-End para el sistema universitario Aulario. Validas pantallas, interacciones y diseño.",
+    "fields": [
+      "Fecha", "ID", "Descripción", "Prioridad", "Tipo de Caso",
+      "Precondiciones", "Pasos de Prueba", "Resultado Esperado"
+    ]
+  }
+}

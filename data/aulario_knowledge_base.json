@@ -1,0 +1,68 @@
+{
+  "roles": [
+    {
+      "name": "Secretaria",
+      "groups": [
+        {
+          "name": "Cronograma",
+          "actions": [
+            "Crear cronograma",
+            "Modificar cronograma",
+            "Borrar cronograma",
+            "Visualizar cronogramas de clases (Días y horarios de dictado)",
+            "Visualizar cronogramas de exámenes"
+          ]
+        },
+        {
+          "name": "Asignación de espacio",
+          "actions": [
+            "Asignar espacio a cronograma",
+            "Asignar espacio a cronograma de exámenes",
+            "Reasignar espacio a cronograma",
+            "Reasignar espacio a cronograma de exámenes",
+            "Desvincular espacio de cronograma",
+            "Desvincular espacio de cronograma de exámenes"
+          ]
+        },
+        {
+          "name": "Reserva",
+          "actions": [
+            "Consultar/buscar disponibilidad de espacio",
+            "Consultar/buscar reserva",
+            "Ver detalle de reserva",
+            "Reservar un espacio",
+            "Suspender reserva",
+            "Borrar reserva",
+            "Modificar reserva (Cambio de fecha, horario y espacio, desvinculación de espacio)",
+            "Ver agenda",
+            "Visualizar reservas por espacio (Monitor)",
+            "Ver agenda de espacio"
+          ]
+        },
+        {
+          "name": "Mantenimiento",
+          "actions": [
+            "Gestionar edificio",
+            "Consultar edificios",
+            "Registrar edificios",
+            "Modificar edificios",
+            "Borrar edificios",
+            "Gestionar espacio",
+            "Consultar espacio",
+            "Registrar espacio",
+            "Modificar espacio",
+            "Borrar espacio",
+            "Asignar unidad predeterminada a espacio",
+            "Asignar espacios exclusivo a la unidad",
+            "Gestionar equipamiento",
+            "Consultar equipamiento",
+            "Registrar equipamiento",
+            "Modificar equipamiento",
+            "Borrar equipamiento",
+            "Vincular equipamiento a espacio"
+          ]
+        }
+      ]
+    }
+  ]
+}
