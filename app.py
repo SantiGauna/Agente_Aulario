@@ -5,7 +5,6 @@ import pandas as pd
 from io import BytesIO
 from datetime import datetime
 
-
 # Importar módulos internos
 from modules.incidencia_jira import JiraMonitor
 from modules.testcase_generator import generar_casos_prueba
@@ -43,7 +42,11 @@ def create_app():
                 flash(f"Error: {error}", "danger")
 
         columnas = CONFIG_TESTCASES.get(tipo, {}).get("fields", [])
-        return render_template("index.html", campos=columnas, test_cases=test_cases, user_story=user_story, error=error, tipo=tipo)
+        monitor_active = app.jira_monitor.active
+        current_issue = getattr(app.jira_monitor, "current_issue", None)
+
+        return render_template("index.html", campos=columnas, test_cases=test_cases, user_story=user_story,
+                               error=error, tipo=tipo, monitor_active=monitor_active, current_issue=current_issue)
 
     @app.route("/export", methods=["POST"])
     def export():
@@ -95,7 +98,13 @@ def create_app():
             app.jira_monitor.stop_monitoring()
             return jsonify({"status": "Monitor stopped"})
         return jsonify({"status": "Invalid action"}), 400
-        
+
+    # NUEVO endpoint para obtener issue actual en proceso
+    @app.route("/api/current_issue")
+    def api_current_issue():
+        current_issue = getattr(app.jira_monitor, "current_issue", None)
+        return jsonify({"current_issue": current_issue})
+
     @app.route("/clear_cases", methods=["POST"])
     def clear_cases():
         folder = "generated_test_cases"
@@ -113,13 +122,12 @@ def create_app():
 
         # Resetear set en memoria del monitor para que vuelva a procesar
         app.jira_monitor.processed_issues = set()
+        app.jira_monitor.current_issue = None  # Reiniciar incidencia actual
 
         flash("Casos de prueba eliminados. Los issues podrán regenerarse.", "success")
         return redirect(url_for("list_generated"))
 
-
     return app
-
 
 
 if __name__ == "__main__":

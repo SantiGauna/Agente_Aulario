@@ -25,19 +25,19 @@ class JiraMonitor:
 
         self.encoded_auth = base64.b64encode(f"{self.email}:{self.api_token}".encode()).decode()
 
-        # 🔹 Archivo donde guardaremos los issues procesados
         self.processed_file = "data/processed_issues.json"
         self.processed_issues = self.load_processed_issues()
 
+        # NUEVO: variable para incidencia que está procesándose
+        self.current_issue = None
+
     def load_processed_issues(self):
-        """ Cargar issues procesados desde archivo """
         if os.path.exists(self.processed_file):
             with open(self.processed_file, "r", encoding="utf-8") as f:
                 return set(json.load(f))
         return set()
 
     def save_processed_issues(self):
-        """ Guardar issues procesados a archivo """
         os.makedirs("data", exist_ok=True)
         with open(self.processed_file, "w", encoding="utf-8") as f:
             json.dump(list(self.processed_issues), f, indent=2)
@@ -82,7 +82,6 @@ class JiraMonitor:
             for issue in issues:
                 issue_key = issue.get("key")
 
-                # 🔹 Si ya se procesó antes, ignorar
                 if issue_key in self.processed_issues:
                     self.log(f"Issue {issue_key} ya procesado, ignorando...")
                     continue
@@ -102,16 +101,17 @@ class JiraMonitor:
         title = fields.get("summary", "")
         description = fields.get("description", "")
 
-        # 🔹 Detección automática del tipo
         if "[BE]" in title.upper():
             tipo = "BE"
         elif "[FE]" in title.upper():
             tipo = "FE"
         else:
-            tipo = "BE"  # default
+            tipo = "BE"
             self.log(f"Issue {issue_key} sin etiqueta, asignado a BE por defecto")
 
         user_story = f"{title}\n\n{description}"
+
+        self.current_issue = issue_key  # <-- Aquí asignamos la incidencia en proceso
 
         try:
             with self.app.app_context():
@@ -121,6 +121,8 @@ class JiraMonitor:
                 self.log(f"Generados {len(test_cases)} casos ({tipo}) para {issue_key}")
         except Exception as e:
             self.log(f"Error procesando {issue_key}: {e}", level="error")
+        finally:
+            self.current_issue = None  # <-- Al finalizar limpiamos
 
     def save_test_cases(self, issue_key, test_cases, title):
         os.makedirs("generated_test_cases", exist_ok=True)
