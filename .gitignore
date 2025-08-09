@@ -13,3 +13,5 @@ __pycache__/
 # Archivos generados
 generated_test_cases/
 data/processed_issues.json
+
+app/

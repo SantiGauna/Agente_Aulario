@@ -62,6 +62,9 @@ class JiraMonitor:
             time.sleep(self.polling_interval)
 
     def check_jira_issues(self):
+        if not self.active:  # 🔴 Detener chequeo si ya está apagado
+            return
+        
         jql = f"project = {self.project_key} AND status = 'QA TESTING'"
         self.log(f"Consultando Jira con JQL: {jql}")
 
@@ -80,6 +83,10 @@ class JiraMonitor:
             issues = response.json().get("issues", [])
 
             for issue in issues:
+                if not self.active:  # 🔴 Cortar inmediatamente si se apagó en medio de iteración
+                    self.log("Monitor detenido: se interrumpe procesamiento de issues pendientes")
+                    break
+
                 issue_key = issue.get("key")
 
                 if issue_key in self.processed_issues:
@@ -95,7 +102,12 @@ class JiraMonitor:
         except requests.exceptions.RequestException as e:
             self.log(f"Error al consultar Jira: {e}", level="error")
 
+
     def process_jira_issue(self, issue):
+        if not self.active:  # 🔴 No seguir si ya se apagó
+            self.log("Monitor detenido antes de procesar issue")
+            return
+
         issue_key = issue.get("key")
         fields = issue.get("fields", {})
         title = fields.get("summary", "")
@@ -105,24 +117,30 @@ class JiraMonitor:
             tipo = "BE"
         elif "[FE]" in title.upper():
             tipo = "FE"
+        elif "[INT]" in title.upper():
+            tipo = "INT"
         else:
             tipo = "BE"
             self.log(f"Issue {issue_key} sin etiqueta, asignado a BE por defecto")
 
         user_story = f"{title}\n\n{description}"
-
-        self.current_issue = issue_key  # <-- Aquí asignamos la incidencia en proceso
+        self.current_issue = issue_key
 
         try:
             with self.app.app_context():
+                if not self.active:  # 🔴 Verificar otra vez antes de generar casos
+                    self.log("Monitor detenido antes de generar casos")
+                    return
+
                 test_cases = current_app.extensions['generator'](user_story, tipo)
                 self.save_test_cases(issue_key, test_cases, title)
-                self.update_jira_issue(issue_key, test_cases)
+                #self.update_jira_issue(issue_key, test_cases)
                 self.log(f"Generados {len(test_cases)} casos ({tipo}) para {issue_key}")
         except Exception as e:
             self.log(f"Error procesando {issue_key}: {e}", level="error")
         finally:
-            self.current_issue = None  # <-- Al finalizar limpiamos
+            self.current_issue = None
+
 
     def save_test_cases(self, issue_key, test_cases, title):
         os.makedirs("generated_test_cases", exist_ok=True)
